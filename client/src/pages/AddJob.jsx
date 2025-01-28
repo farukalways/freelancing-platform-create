@@ -35,7 +35,7 @@ const AddJob = () => {
     };
     // make a post request
     const { data } = await axios.post(
-      `${import.meta.env.VITE_API_UEL}/add-job`,
+      `${import.meta.env.VITE_API_URL}/add-job`,
       formData
     );
     console.log(data);

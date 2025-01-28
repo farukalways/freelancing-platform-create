@@ -26,10 +26,15 @@ async function run() {
     const jobCollection = db.collection("jobs");
 
     // save a job data in db
-
     app.post("/add-job", async (req, res) => {
       const jobData = req.body;
       const result = await jobCollection.insertOne(jobData);
+      res.send(result);
+    });
+
+    //get all jobs data from db
+    app.get("/jobs", async (req, res) => {
+      const result = await jobCollection.find().toArray();
       res.send(result);
     });
 
