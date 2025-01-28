@@ -38,6 +38,15 @@ async function run() {
       res.send(result);
     });
 
+    // get all jobs then query spcific email
+    app.get("/myJob/:email", async (req, res) => {
+      const email = req.params.email;
+      console.log("email", email);
+      const query = { "buyer.email": email };
+      const result = await jobCollection.find(query).toArray();
+      res.send(result);
+    });
+
     // Send a ping to confirm a successful connection
     console.log(
       "Pinged your deployment. You successfully connected to MongoDB!"
