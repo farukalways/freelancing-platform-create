@@ -2,18 +2,33 @@ import { Link } from "react-router-dom";
 import useAuth from "../hooks/useAuth";
 import { useEffect, useState } from "react";
 import { format } from "date-fns";
+import axios from "axios";
+import toast from "react-hot-toast";
 
 const MyPostedJobs = () => {
   const user = useAuth();
   const [jobs, setJobs] = useState([]);
 
   useEffect(() => {
-    fetch(`http://localhost:9000/myJob/${user.user?.email}`)
+    fetch(`${import.meta.env.VITE_API_URL}/myJob/${user.user?.email}`)
       .then((res) => res.json())
       .then((data) => {
         setJobs(data);
       });
   }, [user]);
+
+  // delete functionality
+  const handleDelete = async (id) => {
+    try {
+      const { data } = await axios.delete(
+        `${import.meta.env.VITE_API_URL}/Job/${id}`
+      );
+      console.log(data);
+      toast.success("job deleted successfully!!!");
+    } catch (err) {
+      toast.error(err.message);
+    }
+  };
 
   return (
     <section className="container px-4 mx-auto pt-12">
@@ -104,7 +119,10 @@ const MyPostedJobs = () => {
                       </td>
                       <td className="px-4 py-4 text-sm whitespace-nowrap">
                         <div className="flex items-center gap-x-6">
-                          <button className="text-gray-500 transition-colors duration-200   hover:text-red-500 focus:outline-none">
+                          <button
+                            onClick={() => handleDelete(job._id)}
+                            className="text-gray-500 transition-colors duration-200   hover:text-red-500 focus:outline-none"
+                          >
                             <svg
                               xmlns="http://www.w3.org/2000/svg"
                               fill="none"
@@ -122,7 +140,7 @@ const MyPostedJobs = () => {
                           </button>
 
                           <Link
-                            to={`/update/1`}
+                            to={`/update/${job._id}`}
                             className="text-gray-500 transition-colors duration-200   hover:text-yellow-500 focus:outline-none"
                           >
                             <svg

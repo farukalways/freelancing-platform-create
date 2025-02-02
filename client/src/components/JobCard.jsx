@@ -3,11 +3,19 @@
 import { Link } from "react-router-dom";
 import { format } from "date-fns";
 const JobCard = ({ job }) => {
-  const { title, deadline, category, min_price, mix_price, description } =
-    job || {};
+  const {
+    title,
+    deadline,
+    category,
+    min_price,
+    mix_price,
+    description,
+    _id,
+    bid_count,
+  } = job || {};
   return (
     <Link
-      to={`/job/1`}
+      to={`/job/${_id}`}
       className="w-full max-w-sm px-4 py-3 bg-white rounded-md shadow-md hover:scale-[1.05] transition-all"
     >
       <div className="flex items-center justify-between">
@@ -28,7 +36,9 @@ const JobCard = ({ job }) => {
         <p className="mt-2 text-sm font-bold text-gray-600 ">
           Range: ${min_price} - ${mix_price}
         </p>
-        <p className="mt-2 text-sm font-bold text-gray-600 ">Total Bids: 0</p>
+        <p className="mt-2 text-sm font-bold text-gray-600 ">
+          Total Bids: {bid_count}
+        </p>
       </div>
     </Link>
   );
