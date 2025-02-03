@@ -1,12 +1,18 @@
 const express = require("express");
 const cors = require("cors");
+const jwt = require("jsonwebtoken");
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 require("dotenv").config();
-
 const port = process.env.PORT || 9000;
 const app = express();
 
-app.use(cors());
+const corsOptions = {
+  origin: ["http://localhost:5173"],
+  credentials: true,
+  optionalSuccessStatus: 200,
+};
+
+app.use(cors(corsOptions));
 app.use(express.json());
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.tbbgq.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
@@ -25,6 +31,33 @@ async function run() {
     const db = client.db("solo-db");
     const jobCollection = db.collection("jobs");
     const bidsCollection = db.collection("bids");
+
+    // generate jwt
+    app.post("/jwt", async (req, res) => {
+      const email = req.body;
+      // create token
+      const token = jwt.sign(email, process.env.SECRET_KEY, {
+        expiresIn: "1d",
+      });
+      res
+        .cookie("token", token, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === "production",
+          sameSite: process.env.NODE_ENV === "production" ? "none" : "Strict",
+        })
+        .send({ success: true });
+    });
+
+    //clear cookie from browser
+    app.get("/logout", async (req, res) => {
+      res
+        .clearCookie("token", {
+          maxAge: 0,
+          secure: process.env.NODE_ENV === "production",
+          sameSite: process.env.NODE_ENV === "production" ? "none" : "Strict",
+        })
+        .send({ success: true });
+    });
 
     // save a job data in db
     app.post("/add-job", async (req, res) => {
@@ -126,6 +159,29 @@ async function run() {
         },
       };
       const result = await bidsCollection.updateOne(filter, update);
+      res.send(result);
+    });
+
+    //get all jobs data from db
+    app.get("/all-jobs", async (req, res) => {
+      const filter = req.query.filter;
+      const search = req.query.search;
+      const sort = req.query.sort;
+      //sort
+      let options = {};
+      if (sort) {
+        options = { sort: { deadline: sort === "asc" ? 1 : -1 } };
+      }
+      //search
+      let query = {
+        title: {
+          $regex: search,
+          $options: "i",
+        },
+      };
+      //filter
+      if (filter) query.category = filter;
+      const result = await jobCollection.find(query, options).toArray();
       res.send(result);
     });
 

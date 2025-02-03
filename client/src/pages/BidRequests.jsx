@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import useAuth from "../hooks/useAuth";
 import BidRequestTableRow from "../components/BidRequestTableRow";
 import axios from "axios";
+import toast from "react-hot-toast";
 
 const BidRequests = () => {
   const user = useAuth();
@@ -30,10 +31,12 @@ const BidRequests = () => {
         { status }
       );
       console.log(data);
+      toast.success(`Status Change To ${status}`);
       // refresh ui
       fetchAllBids();
     } catch (err) {
       console.log(err);
+      toast.error(err.message);
     }
   };
 
