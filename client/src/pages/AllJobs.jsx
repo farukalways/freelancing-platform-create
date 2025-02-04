@@ -1,9 +1,10 @@
 /* eslint-disable no-unused-vars */
 import { useEffect, useState } from "react";
 import JobCard from "../components/JobCard";
-import axios from "axios";
+import useAxiosSecure from "../hooks/useAxiosSecure";
 
 const AllJobs = () => {
+  const axiosSecure = useAxiosSecure();
   const [filter, setFilter] = useState("");
   const [search, setSeacrch] = useState("");
   const [sort, setSort] = useState("");
@@ -11,15 +12,13 @@ const AllJobs = () => {
   useEffect(() => {
     //jobs data fetch
     const fetchAllJobs = async () => {
-      const { data } = await axios.get(
-        `${
-          import.meta.env.VITE_API_URL
-        }/all-jobs?filter=${filter}&search=${search}&sort=${sort}`
+      const { data } = await axiosSecure.get(
+        `/all-jobs?filter=${filter}&search=${search}&sort=${sort}`
       );
       setJobs(data);
     };
     fetchAllJobs();
-  }, [filter, search, sort]);
+  }, [filter, search, sort, axiosSecure]);
 
   const handleReset = () => {
     setFilter("");

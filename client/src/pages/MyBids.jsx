@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import useAuth from "../hooks/useAuth";
 import AllBidJob from "../components/AllBidJob";
-import axios from "axios";
+import useAxiosSecure from "../hooks/useAxiosSecure";
 
 const MyBids = () => {
+  const axiosSecure = useAxiosSecure();
   const user = useAuth();
   const [bids, setBids] = useState([]);
 
@@ -13,20 +14,19 @@ const MyBids = () => {
   }, [user]);
 
   const fetchAllBids = async () => {
-    fetch(`${import.meta.env.VITE_API_URL}/bids/${user.user?.email}`)
-      .then((res) => res.json())
+    axiosSecure
+      .get(`${import.meta.env.VITE_API_URL}/bids/${user.user?.email}`)
       .then((data) => {
-        setBids(data);
+        setBids(data.data);
       });
   };
 
   const handleStausChange = async (id, prevStatus, status) => {
     if (prevStatus !== "In Progress") return console.log("Not Allowed");
     try {
-      const { data } = await axios.patch(
-        `${import.meta.env.VITE_API_URL}/bid-status-updated/${id}`,
-        { status }
-      );
+      const { data } = await axiosSecure.patch(`/bid-status-updated/${id}`, {
+        status,
+      });
       console.log(data);
       // refresh ui
       fetchAllBids();

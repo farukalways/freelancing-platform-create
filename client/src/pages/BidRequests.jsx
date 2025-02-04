@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import useAuth from "../hooks/useAuth";
 import BidRequestTableRow from "../components/BidRequestTableRow";
-import axios from "axios";
 import toast from "react-hot-toast";
+import axios from "axios";
+import useAxiosSecure from "../hooks/useAxiosSecure";
 
 const BidRequests = () => {
+  const axiosSecure = useAxiosSecure();
   const user = useAuth();
   const [bids, setBids] = useState([]);
   console.log(bids);
@@ -15,11 +17,10 @@ const BidRequests = () => {
   }, [user]);
 
   const fetchAllBids = async () => {
-    fetch(`${import.meta.env.VITE_API_URL}/bid-requests/${user.user?.email}`)
-      .then((res) => res.json())
-      .then((data) => {
-        setBids(data);
-      });
+    axiosSecure.get(`/bid-requests/${user.user?.email}`).then((data) => {
+      setBids(data.data);
+      console.log(data);
+    });
   };
 
   const handleStausChange = async (id, prevStatus, status) => {

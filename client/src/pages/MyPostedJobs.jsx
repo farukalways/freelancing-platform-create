@@ -2,27 +2,23 @@ import { Link } from "react-router-dom";
 import useAuth from "../hooks/useAuth";
 import { useEffect, useState } from "react";
 import { format } from "date-fns";
-import axios from "axios";
 import toast from "react-hot-toast";
+import useAxiosSecure from "../hooks/useAxiosSecure";
 
 const MyPostedJobs = () => {
-  const user = useAuth();
+  const axiosSecure = useAxiosSecure();
+  const { user } = useAuth();
   const [jobs, setJobs] = useState([]);
-
   useEffect(() => {
-    fetch(`${import.meta.env.VITE_API_URL}/myJob/${user.user?.email}`)
-      .then((res) => res.json())
-      .then((data) => {
-        setJobs(data);
-      });
-  }, [user]);
+    axiosSecure.get(`/myJob/${user?.email}`).then((res) => {
+      setJobs(res.data);
+    });
+  }, [user, axiosSecure]);
 
   // delete functionality
   const handleDelete = async (id) => {
     try {
-      const { data } = await axios.delete(
-        `${import.meta.env.VITE_API_URL}/Job/${id}`
-      );
+      const { data } = await axiosSecure.delete(`/Job/${id}`);
       console.log(data);
       toast.success("job deleted successfully!!!");
     } catch (err) {
